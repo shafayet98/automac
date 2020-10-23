@@ -44,7 +44,7 @@ def speak(text):
 
 def ask():
     r = sr.Recognizer()
-    mic = sr.Microphone() 
+    mic = sr.Microphone()
     with mic as source:
         print("mic on")
         audio = r.record(source=mic, duration=10)
@@ -56,14 +56,16 @@ def ask():
             print("Sorry could not recognize your voice")
     return said
 
-
 def ask_again():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
-        audio = r.record(source, duration=10)
+        audio = r.record(source, duration=4)
         text = r.recognize_google(audio, language = 'en-IN', show_all = True )
-        print("I thinks you said '" + r.recognize_google(audio) + "'")
+        print(text['alternative'][0]['transcript'])
+
+
+
 # current_apps = handle_incoming_current_process(current_process)
 # print("Your running apps are: ")
 # print(current_apps)
@@ -72,3 +74,14 @@ def ask_again():
 
 speak("Hello How are you")
 ask_again()
+
+
+
+
+
+
+
+
+
+
+
