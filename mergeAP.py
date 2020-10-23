@@ -63,11 +63,6 @@ def handle_kill(cmd):
     kill_the_process(process.capitalize())
 
 
-
-
-
-
-
 # current_apps = handle_incoming_current_process(current_process)
 # print("Your running apps are: ")
 # print(current_apps)
@@ -76,7 +71,9 @@ def handle_kill(cmd):
 
 # global commads
 wake_word = "program"
-to_end_process = ["stop","finish","terminate","shut down"]
+to_end_process = ["stop","finish","terminate","shut down","exit"]
+exit_self = "self"
+
 
 while True:
     get_qs = ask()
@@ -86,8 +83,11 @@ while True:
         print("What do you want me to do?")
         cmd = ask()
         if any(x in cmd for x in to_end_process):
-            print(cmd)
-            handle_kill(cmd)
+            if exit_self in cmd:
+                exit()
+            else:
+                print(cmd)
+                handle_kill(cmd)
 
 
 
