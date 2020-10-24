@@ -11,7 +11,7 @@ from gtts import gTTS
 import threading
 
 (current_process, tError) = Popen(['osascript', 'getprocess.applescript'], stdout=PIPE).communicate()
-# print(current_process)
+
 
 
 def handle_incoming_current_process(current_process):
@@ -56,6 +56,19 @@ def beep():
     out, err = p.communicate()
 
 
+def take_ss():
+    p = subprocess.Popen(
+            ['osascript', 'takess.applescript'], 
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+
+def vol_grph(cmd):
+    args = [cmd]
+    p = subprocess.Popen(
+            ['osascript', 'vg.applescript'] + [str(arg) for arg in args], 
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+
 def speak(text,status):
     if status == "open":
         show_txt = text + " is openned"
@@ -70,6 +83,7 @@ def speak(text,status):
     filename = "command.mp3"
     tts.save(filename)
     playsound.playsound(filename)
+
 
 
 def ask():
@@ -93,24 +107,26 @@ def handle_init(cmd, status):
         kill_thread = threading.Thread(target=kill_the_process,args=[process_cap])
         sp_thread = threading.Thread(target=speak,args=[process_cap,"kill"])
         kill_thread.start()
-        sp_thread.start()
+        # sp_thread.start()
     elif status == "open":
         op_thread = threading.Thread(target=open_process,args=[process_cap])
         sp_thread = threading.Thread(target=speak,args=[process_cap,"open"])
         op_thread.start()
-        sp_thread.start()
+        # sp_thread.start()
     elif status == "switch":
         swtch_thread = threading.Thread(target=switch_process,args=[process_cap])
         sp_thread = threading.Thread(target=speak,args=[process_cap,"switch"])
         swtch_thread.start()
-        sp_thread.start()
+        # sp_thread.start()
 
 
 # global commads
 wake_word = "program"
 to_end_process = ["stop","finish","terminate","shut down","exit"]
 to_open_process = ["open","turn on","launch"]
-to_switch_process = ["go to","switch to", "go" ,"switch"]
+to_switch_process = ["go to","switch to", "go" ,"switch", "move to","move","to","2"]
+to_ss = ["take screenshot", "take ss","ss", "screenshot"]
+to_vol_graphics = ["volume high","volume low","volume mid","light up","light down"]
 exit_self = "self"
 
 
@@ -121,23 +137,33 @@ def brain():
         if get_qs.count(wake_word) > 0:
             beep()
             cmd = ask()
+            # current process
+            if cmd == "now":
+                print(current_process)
+            # kill process
             if any(x in cmd for x in to_end_process):
                 if exit_self in cmd:
                     exit()
                 else:
                     print(cmd)
                     handle_init(cmd, "kill")
+            # open process
             if any(x in cmd for x in to_open_process):
                 print(cmd)
                 handle_init(cmd, "open")
+            # switch process
             if any(x in cmd for x in to_switch_process):
                 print(cmd)
                 handle_init(cmd, "switch")
+            # screenshot
+            if any(x in cmd for x in to_ss):
+                print(cmd)
+                take_ss()
+            # volume and brightness
+            if any(x in cmd for x in to_vol_graphics):
+                print(cmd)
+                vol_grph(cmd)
 
-
-if __name__ == "__main__":
-    bt = threading.Thread(target=brain)
-    bt.start()
     
     
 
