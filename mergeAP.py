@@ -49,18 +49,25 @@ def open_process(open_process_name):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     
+def beep():
+    p = subprocess.Popen(
+            ['osascript', 'beep.applescript'], 
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
 
 
 def speak(text,status):
     if status == "open":
         show_txt = text + " is openned"
+    elif status == "general":
+        show_txt = text
     elif status == "kill":
         show_txt = text + " is terminated"
     elif status == "switch":
         show_txt = "switched to " + text
     
     tts = gTTS(text = show_txt, lang = "en")
-    filename = "voice.mp3"
+    filename = "command.mp3"
     tts.save(filename)
     playsound.playsound(filename)
 
@@ -107,25 +114,34 @@ to_switch_process = ["go to","switch to", "go" ,"switch"]
 exit_self = "self"
 
 
-while True:
-    get_qs = ask()
-    print(get_qs)
-    if get_qs.count(wake_word) > 0:
-        # speak("What do you want me to do?")
-        print("What do you want me to do?")
-        cmd = ask()
-        if any(x in cmd for x in to_end_process):
-            if exit_self in cmd:
-                exit()
-            else:
+def brain():
+    while True:
+        get_qs = ask()
+        print(get_qs)
+        if get_qs.count(wake_word) > 0:
+            beep()
+            cmd = ask()
+            if any(x in cmd for x in to_end_process):
+                if exit_self in cmd:
+                    exit()
+                else:
+                    print(cmd)
+                    handle_init(cmd, "kill")
+            if any(x in cmd for x in to_open_process):
                 print(cmd)
-                handle_init(cmd, "kill")
-        if any(x in cmd for x in to_open_process):
-            print(cmd)
-            handle_init(cmd, "open")
-        if any(x in cmd for x in to_switch_process):
-            print(cmd)
-            handle_init(cmd, "switch")
+                handle_init(cmd, "open")
+            if any(x in cmd for x in to_switch_process):
+                print(cmd)
+                handle_init(cmd, "switch")
+
+
+if __name__ == "__main__":
+    bt = threading.Thread(target=brain)
+    bt.start()
+    
+    
+
+
 
 
 
